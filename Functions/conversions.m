@@ -1,0 +1,20 @@
+% Common Conversions stored in a data structure.
+conv.in2m = 0.0254;
+conv.in2mm = 25.4;
+conv.psi2pa = 6894.76;
+conv.lbm2kg = 0.453592;
+conv.ft2m = 0.3048; 
+conv.r2k = 0.555556;
+conv.f2r = 459.67;
+conv.c2k = 273.34;
+conv.in2ft = 1/12;
+conv.ft32m3 = 0.0283168;
+conv.hm2heng = 0.176228; % W/m2K to BTU/ft2-hr-R
+conv.km2keng = 0.5781759824; % W/mK to BTU/ft-R
+conv.bar2psi = 14.5038;
+conv.lbf2N = 4.44822;
+conv.pa2bar = 1e-5;
+conv.m2mm = 1e3;
+conv.in22ft2 = 144;
+conv.kgm32lbft3 = 0.062428;
+conv.Pas2lbfts = 0.67196897514;
