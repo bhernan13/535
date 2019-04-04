@@ -8,13 +8,13 @@
 % manifold. Pass inlet velocities to downstream beds based on exit/inlet
 % conditon
 %%
-% Bed 1, 40" long 4" ID, bed 2, 18" long 3.5" ID both SS304
+% Bed 1, 50" long 3.4" ID, bed 2, 18" long 3.4" ID both SS304 pebbles
 clear all;close all;clc; %#ok<CLALL>
 dbstop if error;
 %% Add Paths to Functions and Refprop
 % Refprop folder must be stored on the 'C:\temp' filepath. 
 % ECN drives prevent running refprop from within them. 
-cd('Z:\2019\HPDS\Thermal_Fluids\PB');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cd('Z:\2019\HPDS\Thermal_Fluids\PB_MM');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 currentDir = pwd;
@@ -31,19 +31,19 @@ conversions;
 global conv
 %% General Inputs and Bed 1 Inlet Conditions
 fprintf('\nInput General and Initial Inlet Conditions.\n\n');
-fluid = char(input('Input REFPROP Fluid (.fld) or Mixture (.mix) with corect suffix: ','s'));
-beds = input('Enter number of beds in series: ');
+fluid = char('ethane'); % input('Input REFPROP Fluid (.fld) or Mixture (.mix) with corect suffix: ','s'));
+beds = 2; % input('Enter number of beds in series: ');
 
 ethane{1,1} = 'Property'; ethane{1,2} = 'Value';
 ethane{2,1} = 'Inlet Temperature [R]'; ethane{3,1} = 'Inlet Pressure [pa]';
 ethane{4,1} = 'Outlet Target [R]'; ethane{5,1} = 'Outlet Target Pressure [psi]';
 
-ethane{2,2} = (input('Fluid Inlet Temp [F]: ') + conv.f2r) * conv.r2k; %K
+ethane{2,2} = (68 + conv.f2r) * conv.r2k; %K input('Fluid Inlet Temp [F]: ')
 ethane{3,2} = input('Fluid Inlet Pressure [psi]: ')*conv.psi2pa; %pa
-ethane{4,2} = (input('Final Target Temp [F]: ')+conv.f2r)*conv.r2k; %R
+ethane{4,2} = (input('Final Target Temp [R]: '))*conv.r2k; %R
 ethane{5,2} = input('Final Target Pressure [psi]: ')*conv.psi2pa; %pa
 solve{4,2} = input('mdot [lbm/s]: ') * conv.lbm2kg; %kg/s
-solve{5,2} = input('Run Time [s]: '); % Hotfire, s
+solve{5,2} = 5; % input('Run Time [s]: '); % Hotfire, s
 %% Bed Specific Inputs
 % Initialize
 pebbleDiameter = cell(beds+1,2);
@@ -60,17 +60,17 @@ bed{10,1} = 'Layer Volume [m3]';
 for i = 2:beds+1
     fprintf('\nInput Parameters for Bed %s.\n\n', num2str(i-1));
     material{i,1} = strcat('Bed ',num2str(i-1));
-    material{i,2} = char(input('Enter Pebble Material - SS304,SS316,CU201,AL2017,BRASS260: ','s'));
+    material{i,2} = char('SS304'); % input('Enter Pebble Material - SS304,SS316,CU201,AL2017,BRASS260: ','s')
     pebbleDiameter{i,1} = strcat('Bed ',num2str(i-1));
-    pebbleDiameter{i,2} = input('Pebble Diameter [in]: ')*conv.in2m; % m
+    pebbleDiameter{i,2} = 0.25*conv.in2m; % m input('Pebble Diameter [in]: ')
     bed{1,i} = strcat('Bed ',num2str(i-1));
     bed{2,i} = input('Bed Length [in]: ')*conv.in2m; %m, fixed by Kyle.
-    bed{3,i} = input('Pipe ID [in]: ')*conv.in2m; %m, internal diameter
+    bed{3,i} = 3.4*conv.in2m; %m, internal diameter input('Pipe ID [in]: ')
     bed{4,i} = (pi/4).*(bed{3,2}.^2); %m2
     for j = 1:length(bed{2,2})
         bed{5,i}(:,j) = (pi/4).*(bed{3,2}.^2).*bed{2,2}(j); %m3
     end
-    bed{6,i} = (input('Bed Set Point [F]: ')+conv.f2r)*conv.r2k; %K
+    bed{6,i} = (input('Bed Set Point [R]: '))*conv.r2k; %K
     [bed{7,i}, bed{8,i}, bed{9,i}, bed{10,i}] = pebpack(pebbleDiameter{i,2}, bed{3,i});
 end
 %% Material Property Cells
@@ -113,7 +113,7 @@ properties{6,4} = 532.224;
 solve{1,1} = 'Property'; solve{1,2} = 'Value';
 solve{2,1} = 'Time Step, dt [s]'; solve{3,1} = 'X Step,dx [m]';
 solve{4,1} = 'Mass Flow [kg/s]'; solve{5,1} = 'Hotfire Duration [s]';
-solve{2,2} = 0.01; %s
+solve{2,2} = 0.02; %s
 solve{3,2} = pebbleDiameter; %in
 %% Initial Thermal Energy of Each Layer
 %% Calculate Bed Entrance Velocity.
@@ -251,8 +251,13 @@ if beds == 2
     tempLocation2 = tempLine2.*pebbleDiameter{3,2}/conv.in2m;
 end
 
-write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2});
-write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2});
+write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
+% writing data of pebble temp , ethane temp, and location where this is
+% occurring (ie where desired temp is reached)
+% giving file name of length and diameter, bed number, and inlet pressure
+% how to pull pressure at end of27 bed: Data1{2,2}{5,2}(end,:)
+% how to pull temp of ethane at end of bed: Data1{2,2}{3,2}(end,:)
+write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
 %% Plotting
 % Move post process, plotting and write to a dedicated post processing
 % Bed 1
@@ -263,17 +268,13 @@ if settings{2,2}
     title({'Bed 1 Ethane Temperature and Associated Bed Location vs. Time',...
             strcat(num2str(Data1{2,2}{9,2}{7,2}),'" ID',num2str(Data1{2,2}{9,2}{6,2}),'" Length',...
             num2str(Data1{2,2}{9,2}{5,2}),'" Pebbles')}); 
-    xlabel('Time [s]'); 
+    xlabel('Time [s]'); ylabel('Temperature [K]');
     yyaxis left
-    ylabel('Temperature [F]');
-    axis([0 5 500 520]);
-    plot(Data1{2,2}{1,2},((tempFluid1./conv.r2k)-conv.f2r));
+    plot(Data1{2,2}{1,2},tempFluid1);
     yyaxis right
-    ylabel('Location [in]');
-    axis([0 5 0 50]);
     set(gca,'ydir','reverse')
-    plot((Data1{2,2}{1,2}),tempLocation1);
-    legend('Ethane Temp [F]','Bed Location [in]','location','southwest');
+    plot((Data1{2,2}{1,2}),(tempLocation1));
+    legend('Ethane Temp [K]','Bed Location [in]','location','southwest');
 end
 
 % Bed 2
@@ -282,17 +283,14 @@ if beds == 2
     figure(2);
     grid on; hold on;
     title({'Bed 2 Ethane Temperature and Associated Bed Location vs. Time',...
-            strcat(num2str(Data2{2,2}{9,2}{7,2}),' ID',num2str(Data2{2,2}{9,2}{6,2}),'" Length',...
+            strcat(num2str(Data2{2,2}{9,2}{7,2}),'" ID',num2str(Data2{2,2}{9,2}{6,2}),'" Length',...
             num2str(Data2{2,2}{9,2}{5,2}),'" Pebbles')}); 
-    xlabel('Time [s]'); 
+    xlabel('Time [s]'); ylabel('Temperature [K]');
     yyaxis left
-    ylabel('Temperature [F]');
-    axis([0 5 500 520]);
-    plot(Data2{2,2}{1,2},((tempFluid2./conv.r2k)-conv.f2r));
+    plot(Data2{2,2}{1,2},tempFluid2);
     yyaxis right
-    ylabel('Location [in]');
-    axis([0 5 0 2]);
     set(gca,'ydir','reverse')
-    plot((Data2{2,2}{1,2}),tempLocation2);
-    legend('Ethane Temp [F]','Bed Location [in]','location','southwest');
+    plot((Data2{2,2}{1,2}),(tempLocation2));
+    legend('Ethane Temp [K]','Bed Location [in]','location','southwest');
 end
+
