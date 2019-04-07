@@ -14,7 +14,7 @@ dbstop if error;
 %% Add Paths to Functions and Refprop
 % Refprop folder must be stored on the 'C:\temp' filepath. 
 % ECN drives prevent running refprop from within them. 
-cd('Z:\2019\HPDS\Thermal_Fluids\PB_MM');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cd('C:\Users\gymna\Documents\Purdue\AAE 535\github\535-master');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 currentDir = pwd;
@@ -42,7 +42,7 @@ ethane{2,2} = (68 + conv.f2r) * conv.r2k; %K input('Fluid Inlet Temp [F]: ')
 ethane{3,2} = input('Fluid Inlet Pressure [psi]: ')*conv.psi2pa; %pa
 ethane{4,2} = (input('Final Target Temp [R]: '))*conv.r2k; %R
 ethane{5,2} = input('Final Target Pressure [psi]: ')*conv.psi2pa; %pa
-solve{4,2} = input('mdot [lbm/s]: ') * conv.lbm2kg; %kg/s
+solve{4,2} = input('mdot [lbm/s]: '); % lbm/s   THIS STAYS IN lbm/s
 solve{5,2} = 5; % input('Run Time [s]: '); % Hotfire, s
 %% Bed Specific Inputs
 % Initialize
@@ -252,12 +252,8 @@ if beds == 2
 end
 
 write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
-% writing data of pebble temp , ethane temp, and location where this is
-% occurring (ie where desired temp is reached)
-% giving file name of length and diameter, bed number, and inlet pressure
-% how to pull pressure at end of27 bed: Data1{2,2}{5,2}(end,:)
-% how to pull temp of ethane at end of bed: Data1{2,2}{3,2}(end,:)
 write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
+
 %% Plotting
 % Move post process, plotting and write to a dedicated post processing
 % Bed 1
