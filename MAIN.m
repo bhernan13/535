@@ -4,7 +4,7 @@
 %% Add Paths to Functions and Refprop
 % Refprop folder must be stored on the 'C:\temp' filepath. 
 % ECN drives prevent running refprop from within them. 
-cd('Z:\2019\HPDS\Thermal_Fluids\PB');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cd('C:\Users\gymna\Documents\Purdue\AAE 535\github\535-mmelcer13-postprocess');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 currentDir = pwd;
@@ -37,7 +37,7 @@ addpath(genpath(strcat(currentDir,'\Results')));
 % outputs based on what's needed instead of getting a slog of data
 
 %% Data Matricie(s)
-% Setup MAtricie(s) for storing performance values for vector input runs
+% Setup Matricie(s) for storing performance values for vector input runs
 
 %% Main Code Call
 % same function as currently 
@@ -46,6 +46,18 @@ addpath(genpath(strcat(currentDir,'\Results')));
 % Perform any analysis and reduction of data from the Data Matricie(s)
 % output from the main code. Probably going to store any requested values
 % output in a text file based on the output calls
+
+if settings{1,2}
+    % Bed 1
+    fprintf('\nPost Processing...\n');
+    [tempBed1, tempFluid1, tempLocation1, tempTarget1] = postprocess(Data1,pebbleDiameter{2,2});
+    % Bed 2
+    fprintf('\nPost Processing...\n');
+    [tempBed2, tempFluid2, tempLocation2, tempTarget2] = postprocess(Data2,pebbleDiameter{3,2});
+end
+
+write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
+write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
 
 %% Plot/Contour
 % Function(s) to handle plotting graphs and contours from data from above
