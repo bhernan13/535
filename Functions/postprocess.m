@@ -1,4 +1,4 @@
-function [tempBed, tempFluid, tempLocation, tempTarget] = postprocess(Data,pebbleDiameter)
+function [tempBed, tempFluid, tempLocation, tempTarget, timeIndices] = postprocess(Data,pebbleDiameter)
 
 %% Load Conversions
 conversions;
@@ -32,4 +32,19 @@ elseif tempExit >= floor(setTemp)
 end
 
 tempLocation = tempLine.*pebbleDiameter/conv.in2m;
+
+% generate indices for contour plots for 0-5 seconds
+ind = 1;
+timeIndices = zeros(6,2);
+timeIndices(1,2) = ind;
+timeIndices(:,1) = [0;1;2;3;4;5];
+for i = 1:length(timeIndices)-1
+    while Data{2,2}{1,2}(ind) < i
+        ind = ind+1;
+    end
+    timeIndices(i+1,2) = ind;
+end
+    
+    
+    
 end
