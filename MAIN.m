@@ -76,36 +76,28 @@ for k = 1:beds
 end
 
 %% Post Processing
-% Perform any analysis and reduction of data from the Data Matricie(s)
-% output from the main code. Probably going to store any requested values
-% output in a text file based on the output calls
 
 if settings{1,2}
     % Bed 1
     fprintf('\nPost Processing...\n');
-    [tempBed1, tempFluid1, tempLocation1, tempTarget1,timeIndices1] = postprocess(Data1,...
+    [tempBed1, fluids1, locations1, tempTarget1, timeIndices1] = postprocess(Data1,...
         pebbleDiameter{2,2});
     % Bed 2
     fprintf('\nPost Processing...\n');
-    [tempBed2, tempFluid2, tempLocation2, tempTarget2,timeIndices2] = postprocess(Data2,...
+    [tempBed2, fluids2, locations2, tempTarget2, timeIndices2] = postprocess(Data2,...
         pebbleDiameter{3,2});
 end
 
 if settings{3,2}
-    write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
-    write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
+    write(tempBed1,fluids1{1,2},locations1{1,2},Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
+    write(tempBed2,fluids2{1,2},locations2{1,2},Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
 end
 
 %% Plot/Contour
 
 if settings{2,2}
     fprintf('\nPlotting results...\n');
-    plotting(Data1, tempFluid1, tempLocation1, 1);
-    plotting(Data2, tempFluid2, tempLocation2, 2);
+    plotting(Data1, fluids1, locations1, 1);
+    plotting(Data2, fluids2, locations2, 2);
 end
 
-if settings{4,2}
-    fprintf('\nPlotting contours...\n');
-    contourPlotting(Data1, timeIndices1, 1);
-    contourPlotting(Data2, timeIndices2, 2);
-end

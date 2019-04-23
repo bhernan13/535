@@ -14,7 +14,7 @@ dbstop if error;
 %% Add Paths to Functions and Refprop
 % Refprop folder must be stored on the 'C:\temp' filepath. 
 % ECN drives prevent running refprop from within them. 
-cd('D:\AAE 535\535-mmelcer13-postprocess');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cd('C:\Users\gymna\Documents\Purdue\AAE 535\github\535-mmelcer13-postprocess');%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 currentDir = pwd;
@@ -119,8 +119,7 @@ solve{3,2} = pebbleDiameter; %in
 %% Calculate Bed Entrance Velocity.
 % Velocity leaving the manifold
 %% Post Processing 
-settings{1,1} = 'post process'; settings{2,1} = 'plot'; settings{3,1} = 'write';
-settings{4,1} = 'contour';
+settings{1,1} = 'post process'; settings{2,1} = 'plot'; settings{3,1} = 'write'; settings{4,1} = 'Area';
 settings{1,2} = true;
 settings{2,2} = true;
 settings{3,2} = true;
@@ -190,28 +189,22 @@ end
 if settings{1,2}
     % Bed 1
     fprintf('\nPost Processing...\n');
-    [tempBed1, tempFluid1, tempLocation1, tempTarget1,timeIndices1] = postprocess(Data1,...
+    [tempBed1, fluids1, locations1, tempTarget1, timeIndices1] = postprocess(Data1,...
         pebbleDiameter{2,2});
     % Bed 2
     fprintf('\nPost Processing...\n');
-    [tempBed2, tempFluid2, tempLocation2, tempTarget2,timeIndices2] = postprocess(Data2,...
+    [tempBed2, fluids2, locations2, tempTarget2, timeIndices2] = postprocess(Data2,...
         pebbleDiameter{3,2});
 end
 
 if settings{3,2}
-    write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
-    write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
+    write(tempBed1,fluids1{1,2},locations1{1,2},Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
+    write(tempBed2,fluids2{1,2},locations2{1,2},Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
 end
 %% Plotting
 
 if settings{2,2}
     fprintf('\nPlotting results...\n');
-    plotting(Data1, tempFluid1, tempLocation1, 1);
-    plotting(Data2, tempFluid2, tempLocation2, 2);
-end
-
-if settings{4,2}
-    fprintf('\nPlotting contours...\n');
-    contourPlotting(Data1, timeIndices1, 1);
-    contourPlotting(Data2, timeIndices2, 2);
+    plotting(Data1, fluids1, locations1, 1);
+    plotting(Data2, fluids2, locations2, 2);
 end
