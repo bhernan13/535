@@ -40,7 +40,7 @@ ethane{4,1} = 'Outlet Target [R]'; ethane{5,1} = 'Outlet Target Pressure [psi]';
 
 ethane{2,2} = (68 + conv.f2r) * conv.r2k; %K input('Fluid Inlet Temp [F]: ')
 ethane{3,2} = input('Fluid Inlet Pressure [psi]: ')*conv.psi2pa; %pa
-ethane{4,2} = (input('Final Target Temp [R]: '))*conv.r2k; %R
+ethane{4,2} = input('Final Target Temp [R]: ')*conv.r2k; %R
 ethane{5,2} = input('Final Target Pressure [psi]: ')*conv.psi2pa; %pa
 solve{4,2} = input('mdot [lbm/s]: '); % lbm/s   THIS STAYS IN lbm/s
 solve{5,2} = 5; % input('Run Time [s]: '); % Hotfire, s
@@ -120,12 +120,11 @@ solve{3,2} = pebbleDiameter; %in
 % Velocity leaving the manifold
 %% Post Processing 
 settings{1,1} = 'post process'; settings{2,1} = 'plot'; settings{3,1} = 'write';
-settings{4,1} = 'Area'; settings{5,1} = 'contour';
+settings{4,1} = 'contour';
 settings{1,2} = true;
 settings{2,2} = true;
 settings{3,2} = true;
 settings{4,2} = false;
-settings{5,2} = true;
 %% Outputs
 outputRequest = {'Temperature';'Pressure';'HTC';'Velocity';'Inputs';'Density';'Reynolds';'Prandtl';'Massflow'};
 lengthOut = length(outputRequest);
@@ -199,9 +198,10 @@ if settings{1,2}
         pebbleDiameter{3,2});
 end
 
-write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
-write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
-
+if settings{3,2}
+    write(tempBed1,tempFluid1,tempLocation1,Data1,1,ethane{3,2},ethane{4,2},solve{4,2});
+    write(tempBed2,tempFluid2,tempLocation2,Data2,2,ethane{3,2},ethane{4,2},solve{4,2});
+end
 %% Plotting
 
 if settings{2,2}
@@ -210,7 +210,7 @@ if settings{2,2}
     plotting(Data2, tempFluid2, tempLocation2, 2);
 end
 
-if settings{5,2}
+if settings{4,2}
     fprintf('\nPlotting contours...\n');
     contourPlotting(Data1, timeIndices1, 1);
     contourPlotting(Data2, timeIndices2, 2);
