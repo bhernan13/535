@@ -73,55 +73,16 @@ for i = 2:beds+1
     bed{6,i} = (input('Bed Set Point [R]: '))*conv.r2k; %K
     [bed{7,i}, bed{8,i}, bed{9,i}, bed{10,i}] = pebpack(pebbleDiameter{i,2}, bed{3,i});
 end
-%% Material Property Cells
-properties = cell(6,4);
-properties{1,1} = 'Material'; properties{1,2} = 'T [K];k [W/m-k]';
-properties{1,3} = 'T [K]; Cp [J/kg-K]'; properties{1,4} = 'Density [lbm/ft3]';
-properties{2,1} = 'SS304'; properties{3,1} = 'SS316';
-properties{4,1} = 'CU201'; properties{5,1} = 'AL2017';
-properties{6,1} = 'BRASS260';
-% Thermal Conductivity 
-properties{2,2} = [ 293, 373, 473, 573, 673, 773;
-                     16.2, 16.2, 17.5, 18.8, 20.1, 21.4];
-properties{3,2} = [293, 373, 473, 573, 673, 773;
-                   14, 14.9, 16, 17.3, 18.6, 19.9];
-properties{4,2} = [250, 300, 350, 400, 500, 600, 800;
-                   406, 401, 396, 393, 386, 379, 366];
-properties{5,2} = [250, 300, 400, 500, 600, 700, 800
-                   134, 135, 136, 135, 132, 132, 125];
-properties{6,2} = [293, 350, 400, 500, 600, 700, 800
-                   120, 119, 118, 116, 114, 112, 11];
-% Specific Heat - Put everything into cell arrays
-properties{2,3} = @(T) 6.683 + 0.04906*T + 80.74*log(T); %{'A + BT + Cln(T)','Equation';'A', 6.683;'B', 0.04906;'C', 80.74};
-
-properties{3,3} = [293, 363, 473, 593, 703, 813, 923, 1033, 1143;
-                   452, 486, 528, 548, 565, 573, 586, 615, 649];
-properties{4,3} = [300, 400, 600, 800;
-                   385, 397, 417, 433];
-properties{5,3} = [298, 373, 473, 573, 673, 773, 811;
-                   850, 900, 950, 970, 1000, 1080, 1100];
-properties{6,3} = [300, 400, 600;
-                   380, 395, 425];
-% Density
-properties{2,4} = 499.392;
-properties{3,4} = 499.392;
-properties{4,4} = 558.144;
-properties{5,4} = 174.528;
-properties{6,4} = 532.224;
-%% Load Fluid Properties Tables From NIST - Saturated if needed
 %% Solve Variables Setup 
 solve{1,1} = 'Property'; solve{1,2} = 'Value';
 solve{2,1} = 'Time Step, dt [s]'; solve{3,1} = 'X Step,dx [m]';
 solve{4,1} = 'Mass Flow [kg/s]'; solve{5,1} = 'Hotfire Duration [s]';
 solve{2,2} = 0.02; %s
 solve{3,2} = pebbleDiameter; %in
-%% Initial Thermal Energy of Each Layer
-%% Calculate Bed Entrance Velocity.
-% Velocity leaving the manifold
 %% Post Processing 
 settings{1,1} = 'post process'; settings{2,1} = 'plot'; settings{3,1} = 'write'; settings{4,1} = 'Area';
 settings{1,2} = true;
-settings{2,2} = true;
+settings{2,2} = false;
 settings{3,2} = true;
 settings{4,2} = false;
 %% Outputs
@@ -161,7 +122,7 @@ for k = 1:beds
         for i = 1:length(bed{2,2})
             for j = 1:length(bed{3,2})
                 Nruns = length(bed{2,2}) * length(bed{3,2});
-                [Data1{j+1,i+1}] = pebbleBed(pebbleDiameter{k+1,2},solve{2,2},bed{2,2}(i),solve{5,2},properties,ethane{3,2},...
+                [Data1{j+1,i+1}] = pebbleBed(pebbleDiameter{k+1,2},solve{2,2},bed{2,2}(i),solve{5,2},ethane{3,2},...
                                         ethane{2,2},bed{6,2},solve{4,2},bed{8,2}(j),pebbleDiameter{k+1,2},...
                                         bed{3,2}(j),bed{7,2}(j),fluid,material{k+1,2},settings,outputRequest);
                 run = run+1;
@@ -175,7 +136,7 @@ for k = 1:beds
         for i = 1:length(bed{2,3})
             for j = length(bed{3,3})
                 Nruns = length(bed{2,3}) * length(bed{3,3});
-                [Data2{j+1,i+1}] = pebbleBed(pebbleDiameter{k+1,2},solve{2,2},bed{2,3}(i),solve{5,2},properties,Data1{2,2}{5,2}(end,:),...
+                [Data2{j+1,i+1}] = pebbleBed(pebbleDiameter{k+1,2},solve{2,2},bed{2,3}(i),solve{5,2},Data1{2,2}{5,2}(end,:),...
                                         Data1{2,2}{3,2}(end,:),bed{6,3},solve{4,2},bed{8,3}(j),pebbleDiameter{k+1,2},...
                                         bed{3,3}(j),bed{7,3}(j),fluid,material{k+1,2},settings,outputRequest);
                 run = run+1;
