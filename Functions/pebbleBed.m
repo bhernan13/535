@@ -1,4 +1,4 @@
-function Outputs = pebbleBed(dx,dt,bedLength,runTime,properties,inletPress,...
+function Outputs = pebbleBed(dx,dt,bedLength,runTime,inletPress,...
               inletTemp,Setpoint,mdot,porosity,pebbleDiameter,...
               bedID,N,fluid,material,options,outputs)
 % Code Author: Brian Hernan
@@ -56,14 +56,10 @@ dP = zeros(length(x),length(t));
 m_slug_loop = zeros(length(t),1);
 mdot_loop = zeros(length(t),1);
 %% Select Properties for Chosen Pebble Material
-materialSelect = strcmpi(properties(:,1),material);
-if materialSelect(:) == 0
-    error('Material data is not entered for chosen material. Choose a material with existing data or enter new material data.');
-end
-indexMaterial = find(materialSelect ~= 0);
-Data_k = properties{indexMaterial,2};
-Data_Cp = properties{indexMaterial,3};
-Data_rho = properties{indexMaterial,4};
+properties = material_properties(material);
+Data_k = properties{2};
+Data_Cp = properties{3};
+Data_rho = properties{4};
 %% Set initial values
 i = 1; j = 1;
 P_fluid(i,:) = inletPress;
